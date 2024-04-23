@@ -261,20 +261,63 @@ class Cart {
             }
         }
     }
+    public function total_calculate(){
+        $total = 0;
+        foreach ($this->products as $product){
+            $total += $product['product']->get_price() * $product['quantity'];
+        }
+        return $total;
+    }
+    public function confirm_purchase(){
+        if (empty($this->products)){
+            throw new Exception('Il carrello è vuoto!');
+        }
+        $total = $this->total_calculate();
+        $order = new Ordine($this->products, $total);
+        var_dump("Ordine andato a buon fine.");
+        $this->products = [];
+    }
 }
 
-$laptop = new Product('Mac', '1500€', 3);
+class Ordine {
+    private $customer;
+    private $products = [];
+    private $total = 0;
+    public function __construct($products, $total, $customer = null){
+        $this->products = $products;
+        $this->total = $total;
+        $this->customer = $customer;
+    }
+}
 
-$car = new Product('Fiat', '10000€', 5);
+$laptop = new Product('Mac', 1500, 3);
+
+$car = new Product('Fiat', 10000, 5);
 
 $my_cart = new Cart();
 
 $my_cart->add_product($laptop, 2);
 $my_cart->add_product($car, 4);
 
+echo 'Carrello prima: ';
+
 foreach ($my_cart->get_products() as $product){
     var_dump($product['product']->get_name());
     var_dump($product['product']->get_price());
     var_dump($product['quantity']);
 }
+echo 'Prezzo: ';
+var_dump($my_cart->total_calculate());
+
+$my_cart->confirm_purchase();
+
+echo 'Carrello dopo: ';
+
+foreach ($my_cart->get_products() as $product){
+    var_dump($product['product']->get_name());
+    var_dump($product['product']->get_price());
+    var_dump($product['quantity']);
+}
+echo 'Prezzo: ';
+var_dump($my_cart->total_calculate());
 
